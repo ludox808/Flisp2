@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet FLISP & Partage de Données Médico-Sociales en Belgique</title>
+    <style>
+        :root {
+            --primary-color: #005A9C; /* Bleu institutionnel */
+            --secondary-color: #00A3E0; /* Bleu plus clair pour accents */
+            --accent-color: #F1C40F; /* Jaune pour attention */
+            --text-color: #333;
+            --bg-color: #FFFFFF;
+            --light-gray: #f4f4f4;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #555;
+            --chart-color-1: #007bff;
+            --chart-color-2: #28a745;
+            --chart-color-3: #ffc107;
+            --chart-color-4: #dc3545;
+            --chart-color-5: #6f42c1;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .site-container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 20px 20px 20px;
+            background-color: var(--bg-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            flex-grow: 1;
+        }
+
+        .site-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+
+        .podcast-section {
+            background-color: rgba(255, 255, 255, 0.1); 
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--secondary-color);
+        }
+        .podcast-section h2 {
+            font-size: 1.5em;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: none; 
+        }
+        .podcast-section p {
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            color: #f0f0f0; 
+        }
+        /* Styling for the Vocaroo iframe container */
+        .podcast-section div[style*="text-align:center"] { /* Target the div Vocaroo creates */
+            margin-bottom: 10px; /* Space between player and links */
+        }
+        .podcast-section iframe {
+            display: block;
+            margin: 0 auto 10px auto; /* Center iframe and add space below */
+        }
+         .podcast-section a[title="Enregistreur vocal Vocaroo"] {
+            font-size: 0.85em;
+            color: #cccccc;
+            text-decoration: none;
+            display: block; /* Ensure it's on its own line if needed */
+            margin-bottom: 10px; /* Space below Vocaroo link */
+        }
+        .podcast-section a[title="Enregistreur vocal Vocaroo"]:hover {
+            color: white;
+        }
+        .podcast-section .report-link-podcast {
+            display: inline-block;
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: none;
+            padding: 8px 12px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-top: 5px; /* Space above report link if Vocaroo link is also present */
+        }
+        .podcast-section .report-link-podcast:hover {
+            background-color: rgba(0,0,0,0.4);
+            color: white;
+        }
+
+
+        .site-header img { 
+            max-height: 120px; 
+            max-width: 280px; 
+            margin-bottom: 15px;
+            display: block; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .site-header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        .tab-nav {
+            display: flex;
+            background-color: var(--medium-gray);
+            border-bottom: 3px solid var(--primary-color);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-nav button {
+            background-color: transparent;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--dark-gray);
+            transition: background-color 0.3s, color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .tab-nav button:hover {
+            background-color: #c0c0c0;
+            color: var(--primary-color);
+        }
+
+        .tab-nav button.active {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--accent-color);
+            margin-bottom: -3px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .tab-content h2 {
+            color: var(--primary-color);
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+         .tab-content h2:first-child {
+            margin-top: 0;
+        }
+
+        .tab-content h3 {
+            color: var(--dark-gray);
+            font-size: 1.4em; 
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .tab-content h4 { 
+            color: var(--dark-gray);
+            font-size: 1.2em; 
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-style: normal; 
+        }
+         .tab-content h5 { 
+            color: var(--primary-color);
+            font-size: 1.1em;
+            font-style: italic;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+
+        .tab-content p, .tab-content ul, .tab-content li {
+            margin-bottom: 15px;
+        }
+
+        .tab-content ul {
+            padding-left: 25px;
+        }
+         .tab-content ul ul { 
+            margin-top: 5px;
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+        
+        .tab-content li {
+            margin-bottom: 8px;
+        }
+
+        .tab-content strong {
+            color: var(--primary-color);
+        }
+
+        .tab-content details {
+            background-color: #f9f9f9;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            padding: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .tab-content details[open] {
+            background-color: #f0f8ff;
+        }
+
+        .tab-content summary {
+            font-weight: bold;
+            color: var(--primary-color);
+            padding: 12px 15px;
+            cursor: pointer;
+            outline: none;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .tab-content summary h3, .tab-content summary h4 {
+            color: inherit;
+            margin:0;
+            border-bottom: none;
+        }
+
+        .tab-content summary:hover {
+            background-color: var(--medium-gray);
+        }
+        
+        .tab-content summary::after {
+            content: '▼';
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .tab-content details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .tab-content .details-content {
+            padding: 10px 20px 15px 20px;
+            border-top: 1px dashed var(--medium-gray);
+            margin-top: 5px;
+        }
+
+        .tab-content .quote-box {
+            background-color: var(--light-gray);
+            border-left: 5px solid var(--secondary-color);
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-style: italic;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        
+        .tab-content .highlight-box {
+            background-color: #fffbe6;
+            border: 1px solid var(--accent-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .tab-content .highlight-box strong {
+            color: #c79100;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid var(--medium-gray);
+            padding: 10px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: var(--light-gray);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            margin: 20px auto;
+            padding: 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            background-color: #fdfdfd;
+            max-width: 500px;
+        }
+        .chart-container h5 {
+            text-align: center;
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 10px auto;
+        }
+        .legend {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+        .legend li {
+            margin: 5px 10px;
+            display: flex;
+            align-items: center;
+        }
+        .legend span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+
+        .bar-chart-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 180px;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            margin-top:10px;
+        }
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 25%; 
+            font-size: 0.8em;
+        }
+        .bar {
+            width: 30px; 
+            background-color: var(--chart-color-1);
+            margin-bottom: 5px;
+            color: white;
+            padding-top:3px;
+            font-size: 0.9em;
+            box-sizing: border-box;
+            position: relative;
+        }
+         .bar-label-top {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: var(--text-color);
+         }
+
+        .horizontal-bar-chart {
+            padding: 10px;
+        }
+        .h-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        .h-bar-label {
+            width: 40%; 
+            margin-right: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .h-bar {
+            height: 20px;
+            background-color: var(--chart-color-1);
+            color: white;
+            text-align: right;
+            padding-right: 5px;
+            line-height: 20px;
+            border-radius: 3px;
+            min-width: 25px; 
+        }
+        
+        .prominent-percentage-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .prominent-percentage {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--chart-color-2);
+        }
+        .prominent-percentage-label {
+            font-size: 1.1em;
+            color: var(--dark-gray);
+        }
+
+        .download-button-container {
+            text-align: center;
+            margin: 30px 0 10px 0;
+        }
+        .download-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: inline-block; 
+        }
+        .download-button:hover {
+            background-color: var(--secondary-color);
+        }
+        .report-note {
+            text-align: center;
+            font-size: 0.8em;
+            color: var(--dark-gray);
+            margin-top: 5px;
+        }
+
+        .mindmap-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+        }
+
+        .site-footer {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--dark-gray);
+            color: var(--light-gray);
+            font-size: 0.9em;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            margin-top: auto;
+        }
+         .site-footer p {
+            margin-bottom: 5px;
+         }
+    </style>
+</head>
+<body>
+    <div class="site-container">
+        <header class="site-header">
+            <div class="podcast-section">
+                <h2>🎧 Écoutez notre synthèse en podcast !</h2>
+                <p>Ce podcast, généré avec l'aide de l'intelligence artificielle (IA), résume les points clés de notre analyse sur le partage des données médico-sociales.</p>
+                <!-- Vocaroo Embed Code -->
+                <div style="text-align:center;"> 
+                    <iframe width="300" height="60" src="https://vocaroo.com/embed/13Ldi4aXz636?autoplay=0" frameborder="0" allow="autoplay"></iframe>
+                    <br>
+                    <a href="https://voca.ro/13Ldi4aXz636" title="Enregistreur vocal Vocaroo" target="_blank">Voir sur Vocaroo >></a>
+                </div>
+                <!-- End Vocaroo Embed Code -->
+                <a href="https://drive.google.com/file/d/1I7Uj1SeHeyvE_YeoWhlfSFbaMbZ0nqnD/view?usp=sharing" target="_blank" class="report-link-podcast">📄 Accéder au rapport complet</a>
+            </div>
+
+            <img src="https://i.postimg.cc/GpVGJWxL/Hospisoc-logo-vertical.jpg" alt="Logo Hospisoc">
+            <h1>Projet FLISP & Partage de Données Médico-Sociales en Belgique</h1>
+        </header>
+
+        <nav class="tab-nav">
+            <button class="tab-button active" data-tab="tab-evolution">Évolution Partage Données</button>
+            <button class="tab-button" data-tab="tab-perspectives">Perspectives & Projet 2025-2026</button>
+            <button class="tab-button" data-tab="tab-rapport">Rapport Projet FLISP (2023-2024)</button>
+            <button class="tab-button" data-tab="tab-mindmap">Identification Travailleurs Sociaux</button>
+        </nav>
+
+        <main>
+            <!-- TAB 1: Évolution Partage Données (Priority Tab - UPDATED) -->
+            <section id="tab-evolution" class="tab-content active">
+                <h2>Contexte et enjeux de la coordination transmurale</h2>
+                <p>La continuité des soins entre l'hôpital (deuxième ligne) et les acteurs de première ligne est un défi majeur en Belgique. Une coordination transmurale efficace – c'est-à-dire au-delà des murs de l'hôpital – nécessite un <strong>partage structuré, sécurisé et éthique</strong> des données de santé et sociales concernant le patient.</p>
+                <p>Les <strong>travailleurs sociaux hospitaliers (TSH)</strong> et autres professionnels du secteur social-santé jouent un rôle pivot dans cette coordination : ils préparent la sortie de l'hôpital, informent les services de première ligne et s'assurent du soutien social nécessaire. Cependant, le système actuel compartimente les informations médicales et sociales. Le projet <strong>FLISP (Flux de Liaison Interdisciplinaire Sociale avec le Patient)</strong>, porté par Hospisoc, vise précisément à instaurer un flux pérenne d'informations sociales utiles tout au long du parcours de soins pour pallier cette fragmentation.</p>
+                <p>Cette synthèse analyse comment le système belge peut évoluer pour intégrer pleinement le secteur social, en respectant le secret professionnel et médical, afin d'améliorer la prise en charge globale du patient, en s'appuyant notamment sur les enseignements du POC FLISP.</p>
+                
+                <div class="quote-box">
+                    <p><strong>Définition de la santé selon l'OMS (1946) :</strong></p>
+                    <p>« La santé est un état de complet bien-être physique, mental et social et ne consiste pas seulement en une absence de maladie ou d'infirmité »</p>
+                    <p><em>Cette définition rappelle que la santé dépasse la dimension biomédicale. Les outils numériques doivent évoluer pour intégrer les déterminants sociaux et mentaux.</em></p>
+                </div>
+            
+                <h2>Dispositifs actuels de partage des données de santé en Belgique</h2>
+                <details>
+                    <summary><h3>Architecture fédérale eHealth, hubs régionaux et métahub</h3></summary>
+                    <div class="details-content">
+                        <p>La Belgique a une architecture décentralisée. La <strong>plateforme fédérale eHealth</strong> agit comme méta-hub et offre des services de base (identification, cryptage). Les données sont conservées localement et partagées via des hubs régionaux interconnectés.</p>
+                        <h4>Hubs régionaux :</h4>
+                        <ul>
+                            <li><strong>Réseau Santé Wallon (RSW)</strong>: Wallonie, depuis 2016.</li>
+                            <li><strong>Réseau Santé Bruxellois (Abrumet)</strong>: Bruxelles, depuis 2005.</li>
+                            <li><strong>CoZo et VZN</strong>: Deux hubs en Flandre.</li>
+                        </ul>
+                        <p>L'accès se fait via un lien thérapeutique et consentement éclairé du patient ("eHealth consent"). Le métahub eHealth assure l'interconnexion en temps réel.</p>
+                        <h4>Coffres-forts électroniques de première ligne :</h4>
+                        <ul>
+                            <li><strong>Vitalink</strong> (Flandre), <strong>InterMed</strong> (Wallonie), <strong>BruSafe</strong> (Bruxelles).</li>
+                            <li>Contiennent des résumés comme le Sumehr.</li>
+                        </ul>
+                    </div>
+                </details>
+                 <details>
+                    <summary><h3>Exclusion des travailleurs sociaux et fragmentation (Lien avec FLISP)</h3></summary>
+                    <div class="details-content">
+                        <p>L'échange de données de santé repose sur une architecture fédérale-régionale complexe (eHealth, hubs régionaux). Cependant, les <strong>travailleurs sociaux hospitaliers (TSH)</strong>, tenus au secret professionnel et acteurs clés de la continuité des soins, restent largement exclus du dispositif. Leurs informations sociales circulent sur des canaux séparés (souvent des e-mails non sécurisés ou non structurés, comme relevé dans l'enquête du POC FLISP où près de 60% des répondants les utilisent).</p>
+                        <p>Cette fragmentation crée des "angles morts" lors du retour à domicile. L'enquête du POC FLISP a montré que <strong>87% des répondants (professionnels sociaux) n'ont accès à aucun réseau de santé</strong>, et 43% n'ont aucun accès aux dossiers des autres disciplines au sein même de leur organisation.</p>
+                        <p>La raison souvent invoquée est que l'<strong>AR78</strong> (qui définit les professions de soins) ne reconnaît pas les assistants sociaux comme professionnels des soins, limitant leur accès formel.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h3>Tensions et désaccords fédéral/régional</h3></summary>
+                    <div class="details-content">
+                        <p>Le système n'est pas exempt de tensions. Historiquement, le fédéral a initié des projets, puis a transféré la gestion aux régions. Le fédéral définit le cadre (normes, sécurité) tandis que les Régions financent et exploitent les hubs.</p>
+                        <p>Cette double tutelle engendre des <strong>retards et désaccords</strong>. L'architecture complexe (DPI hôpitaux -> métahub national -> hub régional) peut causer des dysfonctionnements. La Wallonie investit dans une refonte technique du RSW.</p>
+                        <p>Des divergences stratégiques et de priorités régionales (ex: inclusion du secteur social plus poussée en Wallonie) existent aussi.</p>
+                    </div>
+                </details>
+            
+                <h2>Besoins des travailleurs sociaux hospitaliers (TSH)</h2>
+                 <p>Les TSH sont en position charnière pour accompagner le patient post-hospitalisation. Leurs besoins, éclairés notamment par le projet FLISP, incluent :</p>
+                <details>
+                    <summary><h4>1. Accéder aux informations médicales pertinentes</h4></summary>
+                    <div class="details-content">
+                        <p>Pour préparer le retour à domicile, les TSH doivent connaître l'état de santé du patient. Actuellement, l'accès n'est pas garanti car ils ne sont pas toujours considérés comme prestataires de soins reconnus, menant à des pertes d'info.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>2. Partager les informations sociales avec les soignants (Cœur du projet FLISP)</h4></summary>
+                    <div class="details-content">
+                        <p>Les TSH détiennent des infos sociales cruciales (logement, revenus, réseau social) qui influencent le plan médical et la bonne organisation du retour à domicile. Actuellement, le dossier social est souvent séparé et l'info non indexée dans les hubs. Un résumé social partagé via un canal structuré et sécurisé, comme le propose FLISP, est nécessaire.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>3. Coordonner efficacement entre 1ère et 2ème ligne</h4></summary>
+                    <div class="details-content">
+                        <p>Les TSH ont besoin d'outils pour coordonner les acteurs (ex: signaler une sortie à une maison médicale, organiser les aides et soins à domicile). Une plateforme commune ou interopérable est souhaitée, ce que FLISP cherche à faciliter.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>4. Reconnaissance et formation</h4></summary>
+                    <div class="details-content">
+                        <p>Les TSH n'ont pas de statut de "professionnel de la santé" légal clair et distinct. Un "titre professionnel particulier en soin de santé social" a été proposé mais non concrétisé. Ils ont besoin d'être mieux intégrés juridiquement et déontologiquement, et formés aux nouveaux outils numériques comme ceux explorés dans FLISP.</p>
+                    </div>
+                </details>
+                <p><strong>En résumé :</strong> Les TSH requièrent un accès encadré aux données médicales et un partage sécurisé et structuré des données sociales, impliquant leur intégration dans les dispositifs d'échange et le développement d'outils adaptés, avec une attention particulière à l'ergonomie et l'implication des aidants proches.</p>
+            
+                <h2>Freins politiques et institutionnels à l'évolution</h2>
+                <details>
+                    <summary><h4>1. Fragmentation des compétences et inertie institutionnelle</h4></summary>
+                    <div class="details-content">
+                        <p>Le "millefeuille institutionnel" belge complexifie les réformes. La distinction entre "soins de santé" (fédéral) et "action sociale" (régional/communautaire) nécessite un cadre juridique partagé. Les budgets cloisonnés et l'agenda politique fluctuant sont aussi des freins.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>2. Réticences du corps médical (secret et contrôle)</h4></summary>
+                    <div class="details-content">
+                        <p>Traditionnellement attaché au secret médical, une partie du corps médical peut être réticente à ouvrir largement l'accès aux données médicales à des professionnels non-médecins, y compris les travailleurs sociaux. Les préoccupations concernent la portée du secret médical, la responsabilité en cas de fuite d'information, et le contrôle sur qui accède à quelles données. L'Ordre des médecins a longtemps tenu une ligne stricte, bien qu'il reconnaisse aujourd'hui, sous conditions, la nécessité d'un partage interprofessionnel encadré pour la continuité des soins, à condition que ce partage soit pertinent, limité et dans l'intérêt du patient.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>3. Point de vue des assistants sociaux</h4></summary>
+                    <div class="details-content">
+                        <p>Certains assistants sociaux expriment des réticences face à une potentielle "marchandisation des soins" et craignent que la logique d'efficience économique, souvent associée aux outils numériques et au partage de données, ne prime sur l'éthique de l'accompagnement social et la relation de confiance. Le code de déontologie des assistants sociaux est un rempart important. Des craintes existent aussi quant au partage d'informations sociales particulièrement sensibles et au risque de stigmatisation si ces données ne sont pas gérées avec une extrême prudence et un consentement éclairé strict.</p>
+                    </div>
+                </details>
+                 <details>
+                    <summary><h4>4. Limites légales actuelles (Impact sur FLISP)</h4></summary>
+                    <div class="details-content">
+                        <p>Le statut des TSH est flou par rapport à "l'équipe de soins" au sens strict de la loi. Ils ne sont pas toujours reconnus comme "prestataires de soins" selon l'AR78, ce qui complique leur accès formel aux réseaux de santé et aux données médicales. Partager des données avec eux sans base légale claire et robuste est risqué. L'article 458ter du Code Pénal (concernant la concertation de cas) offre un cadre, mais il est parfois jugé trop restrictif ou complexe à appliquer dans la pratique quotidienne et numérique. Ces limites ont été un point d'attention dans le projet FLISP.</p>
+                        <div class="highlight-box">
+                            <strong>AR 78 et prestataires de soins : une reconnaissance incomplète</strong>
+                            <p>L'Arrêté Royal n°78 définit les professions de soins reconnues, mais les assistants sociaux n'y figurent pas explicitement comme tels. Cela les exclut souvent du statut de "prestataire de soins" et du lien thérapeutique formel pour l'accès aux réseaux de santé. Une note de 2018 a théoriquement élargi l'accès via la notion de "relation de soins", mais reste peu opérationnelle en pratique pour les TSH.</p>
+                        </div>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>5. Freins techniques et organisationnels (Relevés par FLISP)</h4></summary>
+                    <div class="details-content">
+                        <p>Gérer les droits d'accès de manière granulaire, l'authentification des assistants sociaux (qui n'ont pas de numéro INAMI comme les médecins), assurer la formation à l'utilisation éthique et sécurisée des outils numériques, et vaincre l'inertie des pratiques existantes (services fonctionnant en silos, manque de temps) sont des défis majeurs. Le POC FLISP a mis en évidence ces aspects, notamment la complexité perçue des outils et la fracture numérique des patients.</p>
+                    </div>
+                </details>
+            
+                <h2>Secret professionnel vs Secret médical : cadre juridique et implications</h2>
+                <details>
+                    <summary><h3>Secret professionnel (général) – art. 458 Code pénal</h3></summary>
+                    <div class="details-content">
+                        <p>Concerne toute personne dépositaire de secrets de par son état ou sa profession (médecins, avocats, mais aussi assistants sociaux). Couvre ce qui est confié, vu, entendu dans l'exercice de la profession. Sa violation est un délit pénal. Des exceptions légales strictes existent (témoignage en justice sous conditions, dénonciation de certains crimes, état de nécessité, concertation de cas art. 458ter CP).</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h3>Secret professionnel médical</h3></summary>
+                    <div class="details-content">
+                        <p>C'est une application spécifique et particulièrement rigoureuse du secret professionnel général, avec des règles déontologiques médicales strictes. Il est d'ordre public et vise à protéger la confiance indispensable entre le patient et son médecin. Il ne peut être levé que dans des conditions très précises, généralement pour des raisons médicales et au bénéfice direct du patient, typiquement pour un partage avec d'autres soignants directement impliqués dans son traitement et avec son consentement.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h3>Secret professionnel partagé et concertation de cas (Art. 458ter CP)</h3></summary>
+                    <div class="details-content">
+                        <p>Le secret professionnel partagé est une pratique admise pour un partage d'informations entre professionnels de santé, si certaines conditions sont remplies : partage dans le même contexte de soins, dans l'intérêt du patient, de manière proportionnée (uniquement les informations nécessaires), avec information et non-opposition (ou consentement explicite) du patient. L'article 458ter du Code Pénal offre un cadre légal pour la "concertation de cas" entre professionnels tenus au secret, y compris potentiellement des travailleurs sociaux, sous réserve du respect des finalités et conditions strictes de cet article. FLISP s'inscrit dans cette recherche d'un partage encadré.</p>
+                    </div>
+                </details>
+                 <details>
+                    <summary><h3>Implications pour le partage de données (Défis pour FLISP)</h3></summary>
+                    <div class="details-content">
+                        <p>La principale difficulté est d'articuler le secret médical, traditionnellement plus restrictif, avec le secret professionnel des travailleurs sociaux pour un partage fluide d'informations médico-sociales. Ouvrir l'accès des données médicales détaillées aux TSH nécessite un cadre juridique et déontologique très clair. De même, un assistant social partageant une information sociale sensible à un médecin doit s'assurer du consentement du patient et de la pertinence du partage. Le concept de "soins intégrés" tend à élargir la notion d'équipe de soins, mais les bases légales doivent suivre. Le consentement éclairé, spécifique et granulaire du patient est une voie incontournable, mais sa mise en œuvre uniforme est un défi, comme l'a montré le POC FLISP.</p>
+                        <p><strong>Conclusion juridique :</strong> Le secret médical reste plus exclusif. La convergence exigera soit des adaptations législatives ou réglementaires précises, soit une systématisation et une simplification des procédures de consentement du patient pour le partage médico-social.</p>
+                    </div>
+                </details>
+            
+                <h2>Perspectives d'évolution vers un partage structuré, sécurisé et éthique</h2>
+                <details>
+                    <summary><h4>1. Reconnaissance officielle du rôle médico-social</h4></summary>
+                    <div class="details-content">
+                        <p>Reconnaître les TSH comme partie intégrante de l'équipe de soins (par un titre professionnel spécifique, une adaptation légale de l'AR78 ou un autre mécanisme), et renforcer leur rôle dans les programmes de soins officiels. Cela permettrait de clarifier leur légitimité à accéder et partager certaines informations dans un cadre défini.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>2. Évolution du cadre légal de partage d'information (Enjeux pour FLISP)</h4></summary>
+                    <div class="details-content">
+                        <p>Une mise à jour législative ou réglementaire pourrait préciser les conditions du partage éthique d'informations entre le secteur sanitaire et social. Cela pourrait impliquer d'introduire dans la loi sur les Droits du Patient ou dans le Code de déontologie médicale des dispositions claires sur la communication à un assistant social, toujours avec le consentement du patient. Élargir le concept de "secret professionnel partagé" pour y inclure explicitement les travailleurs sociaux dans des contextes définis serait une piste. Le consentement du patient (opt-in pour le partage eHealth avec mention spécifique du volet social et des acteurs concernés) reste la pierre angulaire.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>3. Renforcement des outils techniques et de la sécurisation (Leçons de FLISP)</h4></summary>
+                    <div class="details-content">
+                        <ul>
+                            <li><strong>Intégration dans les hubs existants :</strong> Élargir l'accès des hubs de santé régionaux aux "acteurs psycho-médico-sociaux" qualifiés, avec des profils d'accès spécifiques et granulaires. Utiliser des standards d'interopérabilité (comme FHIR, y compris pour les données sociales pertinentes - "Social Determinants of Health"). Adapter les systèmes d'authentification eHealth pour inclure ces nouveaux acteurs. Assurer une traçabilité complète des accès.</li>
+                            <li><strong>Développement d'un plan de soins partagé numérique et d'outils comme FLISP :</strong> Promouvoir un document de liaison transmural qui intègre les dimensions médicales ET sociales, hébergé de manière sécurisée, auquel chaque acteur autorisé peut contribuer et consulter les informations pertinentes à son rôle. Les expérimentations comme FLISP sont cruciales pour définir les fonctionnalités et l'ergonomie de tels outils.</li>
+                        </ul>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>4. Gouvernance partagée et intersectorielle</h4></summary>
+                    <div class="details-content">
+                        <p>Créer ou renforcer un groupe de travail permanent et officiel "données médico-sociales" impliquant le SPF Santé, les entités fédérées, les Ordres professionnels (médecins, pharmaciens, etc.), les représentants des travailleurs sociaux (via Hospisoc par exemple), des représentants des patients, et des experts en éthique et en protection des données. Ce groupe aurait pour mission de définir les limites éthiques, élaborer des guidelines de bonnes pratiques, évaluer les dispositifs. Une attention cruciale doit être portée à la protection de la vie privée (RGPD) et à la sécurité informatique (chiffrement, audits réguliers). Des formations conjointes à la déontologie du partage et à l'utilisation des outils sont indispensables.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>5. Implication du patient et transparence</h4></summary>
+                    <div class="details-content">
+                        <p>Le patient doit être au centre du dispositif : il doit pouvoir consulter son dossier médico-social partagé, comprendre qui a accès à quelles informations et pourquoi, et pouvoir gérer ses consentements de manière simple et éclairée (par exemple, via le portail MaSanté.be, en y intégrant la dimension sociale). La transparence sur les accès et l'utilisation des données est fondamentale pour renforcer la confiance. L'objectif est l'empowerment du citoyen par rapport à ses propres données.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary><h4>6. Expérimentation locale et montée en échelle (Exemple FLISP)</h4></summary>
+                    <div class="details-content">
+                        <p>Encourager et financer des projets-pilotes de partage médico-social, comme le POC FLISP, pour tester les protocoles, les outils, et les modèles de gouvernance en conditions réelles. Tirer les leçons de ces expérimentations pour ajuster les approches avant une généralisation. Capitaliser sur les outils et référentiels existants (ex: BelRAI pour l'évaluation des besoins). La généralisation devrait ensuite se faire via les plateformes et hubs officiels pour assurer la pérennité et la sécurité.</p>
+                     </div>
+                </details>
+            
+                <h2>Conclusion et Prochaines Étapes Stratégiques</h2>
+                <p>L'évolution vers un accès structuré, sécurisé et éthique des données médicales et sociales est essentielle pour une véritable coordination des soins et une prise en charge intégrée du patient. Les enseignements du POC FLISP et les initiatives en cours dessinent une voie prometteuse.</p>
+                <p>Il s'agit de passer d'une logique de séparation à une logique de <strong>partage contrôlé</strong> au service du patient. Cela implique de bâtir la confiance. Les sources officielles convergent vers la nécessité de <strong>soins intégrés</strong> et d'outils numériques interopérables.</p>
+                <p>Les prochaines étapes stratégiques, faisant suite aux réflexions post-POC FLISP et aux rencontres institutionnelles (comme celle avec le ministre Coppieters), consisteront à :</p>
+                <ul>
+                    <li>Définir les axes prioritaires à approfondir avec les partenaires politiques et institutionnels pour le partage médico-social.</li>
+                    <li>Consolider l'intégration du module 'soins intégrés' (issu de FLISP) dans les trajectoires de soins numériques, notamment dans des projets comme 'Patient at Home'.</li>
+                    <li>Avancer sur la construction d'une infrastructure IA éthique mutualisée pour le médico-social, en collaboration avec des partenaires comme Digicoop.</li>
+                    <li>Élaborer un modèle de consentement unifié, simplifié et juridiquement robuste pour le partage d'informations, y compris avec les mutuelles.</li>
+                    <li>Mettre en œuvre des projets concrets issus de ces stratégies, tel que le <strong>projet d'Hospisoc retenu par le SPF Santé Publique pour l'optimisation des parcours de soins des patients vulnérables (décrit plus en détail dans l'onglet "Perspectives & Projet 2025-2026")</strong>, qui inclut la poursuite de l'expérimentation FLISP, la formation à l'IA et une réflexion approfondie sur l'éthique et le financement.</li>
+                </ul>
+                <p>En levant les freins identifiés (légaux, techniques, culturels) et en capitalisant sur les dynamiques positives, la Belgique peut évoluer vers un modèle où le partage de l'information devient un atout majeur pour la qualité des soins transmuraux, en respectant les droits du patient et le secret professionnel de tous les acteurs impliqués. Les prochaines années, avec le Plan eSanté et les initiatives régionales, seront déterminantes.</p>
+                
+                <div class="download-button-container">
+                    <a href="https://drive.google.com/file/d/1I7Uj1SeHeyvE_YeoWhlfSFbaMbZ0nqnD/view?usp=sharing" target="_blank" class="download-button">Accéder au rapport de recherche complet</a>
+                </div>
+                <p class="report-note">Rapport de recherche – Analyse exploratoire appuyée par l’intelligence artificielle (ChatGPT)</p>
+            </section>
+
+            <!-- TAB 2: Perspectives & Projet 2025-2026 -->
+            <section id="tab-perspectives" class="tab-content">
+                 <!-- ... Contenu de l'onglet 2 ... -->
+                <h2>Perspectives post-POC FLISP</h2>
+                <p>Ce document présente les perspectives opérationnelles et stratégiques identifiées à l'issue du POC FLISP. Il s'inscrit dans une dynamique de continuité et d'amplification des apprentissages, à travers différents axes complémentaires, dans le champ de la coordination sociale et santé.</p>
+
+                <h3>I. Mobilisation du module 'soins intégrés' dans les projets 'Patient at Home' et 'Innovation en Santé'</h3>
+                <p>Le module développé durant le POC FLISP avec HospiSoc a été intégré à la plateforme Masana sous l'intitulé 'module soins intégrés'. Ce module suscite aujourd'hui un intérêt particulier dans le cadre des projets 'Patient at Home' et 'Innovation en Santé', portés par le SPF Santé publique, et mis en œuvre dans une dizaine d'hôpitaux belges.</p>
+                <p>Deux de ces hôpitaux sont également impliqués dans l'expérimentation 'Patient at Home', qui explore les potentialités de l'hospitalisation à domicile à travers le numérique. L'intérêt est désormais de voir comment ce module peut être exploité pour garantir une prise en charge globale du patient, intégrant à la fois le soin, l'aide à domicile et le bien-être. Il s'agit de veiller à une articulation pertinente entre l'accompagnement clinique, le suivi social et les ressources communautaires.</p>
+
+                <h3>II. Hospisoc et Digicoop : mutualisation d'une infrastructure IA éthique pour le médico-social</h3>
+                <p>Dans la continuité du POC FLISP, HospiSoc – en lien avec Digicoop – réfléchi à la création d'un serveur IA mutualisé, souverain et sécurisé, spécifiquement dédié au secteur social et santé. Ce serveur aurait pour vocation d'héberger des briques d'IA éthiques, modulaires et interopérables.</p>
+                <p>Ce projet s'inscrit dans une logique de mutualisation entre acteurs du médico-social, afin d'accélérer le développement de cas d'usage concrets comme l'aide à la rédaction, les synthèses de réunions ou l'assistance à la décision. L'exemple du moteur CASE IA (Bayes Impact) constitue un repère en matière d'IA transparente, open source et respectueuse des professionnels comme des usagers.</p>
+
+                <h3>III. Fluidification des échanges avec les mutuelles : vers un consentement simplifié et unifié</h3>
+                <p>L'un des freins majeurs à l'enrôlement des patients dans le cadre du POC FLISP a été la complexité de la procédure de consentement. Les professionnels peinent à obtenir des informations des mutuelles sans la présence du bénéficiaire, et le RGPD est souvent invoqué de manière excessive. Une dynamique est désormais enclenchée pour co-construire un modèle de consentement harmonisé, simple et juridiquement robuste.</p>
+                <p>Des propositions concrètes émergent : création d'un mandat global dès l'admission, canal sécurisé d'échange de données, clarification des rôles liés au secret professionnel. Droits Quotidiens apporte un soutien juridique pour en garantir la validité. Ce chantier est étroitement lié à l'objectif de continuité des soins défendu par le projet FLISP.</p>
+
+                <h3>IV. Prochaines étapes stratégiques (Post-POC FLISP)</h3>
+                <p>En décembre 2024, HospiSoc, conjointement avec UNESSA, a rencontré le ministre Coppieters et son cabinet afin de discuter des suites possibles à donner au projet FLISP et aux dynamiques de l'e-santé. Il a été convenu de revenir avec un plan d'action structuré, incluant des priorités concrètes pour les mois à venir.</p>
+                <p>Les prochaines étapes consisteront à :</p>
+                <ul>
+                    <li>Définir les axes prioritaires à approfondir avec les partenaires politiques et institutionnels;</li>
+                    <li>Consolider l'intégration du module soins intégrés dans les trajectoires de soins numériques;</li>
+                    <li>Avancer sur la construction du serveur IA mutualisé avec les membres de Digicoop ;</li>
+                    <li>Élaborer un modèle de consentement unifié et accepté par les mutuelles, en lien avec les acteurs juridiques et de terrain.</li>
+                </ul>
+                <hr style="margin: 30px 0;">
+                <h2>V. Projet Hospisoc 2025-2026 subsidié par le SPF Santé Publique</h2>
+                <h3>Optimisation des parcours de soins des patients vulnérables par l’innovation</h3>
+                <p>Afin de renforcer la prise en charge des patients vulnérables et de structurer une approche cohérente au sein des hôpitaux francophones, plusieurs actions seront mises en œuvre. Celles-ci porteront sur l’organisation de temps d’échange, l’expérimentation d’outils de coordination, l’analyse des enjeux éthiques et politiques liés à l’identification des vulnérabilités et le développement de compétences en matière de numérique et d’intelligence artificielle appliquées au travail social hospitalier.</p>
+                
+                <h4>1. Organisation d’un séminaire interprofessionnel sur l’identification et la prise en charge des patients vulnérables</h4>
+                <p>Ce séminaire vise à harmoniser les définitions et les pratiques liées à l’accompagnement des patients vulnérables dans les hôpitaux francophones, en croisant les approches locales développées par certains hôpitaux avec des initiatives académiques et scientifiques menées dans les universités francophones. Il aura également pour but d’interpeller les politiques sur les défis liés au financement et à l’organisation de la prise en charge des patients vulnérables, notamment en analysant la tendance actuelle qui met l’accent sur la détection des vulnérabilités, avec le risque potentiel qu’elle prenne le pas sur une approche plus globale et continue.</p>
+                
+                <h4>2. Expérimentation et évaluation d’outils numériques dans le cadre du projet FLISP</h4>
+                <p>Dans la continuité du travail mené autour du flux de liaison interdisciplinaire sociale avec le patient (FLISP), il est prévu d’expérimenter et d’évaluer différents outils numériques existants, afin d’optimiser le repérage et la prise en charge des patients vulnérables. Cette expérimentation devra tenir compte des enjeux éthiques liés à l’identification des vulnérabilités, notamment le risque de stigmatisation et les implications du droit à l’oubli. Il sera essentiel de garantir que les données collectées ne puissent être utilisées dans un autre contexte et de veiller à une gouvernance responsable des informations partagées.</p>
+                
+                <h4>3. Communication et diffusion d’informations sur les outils et bonnes pratiques en matière d’accompagnement des patients vulnérables</h4>
+                <p>La plateforme numérique d’Hospisoc (HospiWall) sera utilisée pour centraliser et diffuser les réflexions du groupe de travail sur les patients vulnérables. Une attention particulière sera portée à la mutualisation des ressources et des connaissances, afin de favoriser le partage entre les initiatives locales, institutionnelles (les pouvoirs publics, hôpitaux, premières ligne social-santé, les universités…).</p>
+                
+                <h4>4. Formation sur l’intelligence artificielle et les outils numériques appliqués au travail social hospitalier</h4>
+                <p>Une formation sera organisée afin de sensibiliser les travailleurs sociaux hospitaliers aux potentialités et aux limites des outils numériques et de l’intelligence artificielle dans l’identification et la prise en charge des patients vulnérables. Cette formation abordera également les enjeux éthiques et juridiques. Cette formation sera intégrée aux parcours de formation.</p> 
+                
+                <h4>5. Groupe de travail « Patients vulnérables »</h4>
+                <p>Le groupe de travail « Patients vulnérables » poursuivra ses missions en structurant une réflexion collective sur l’accompagnement social des patients en situation de vulnérabilité. Il aura pour objectifs de :</p>
+                <ul>
+                    <li>Analyser et interpeller les politiques sur les financements, en veillant à une répartition équitable des moyens entre la première ligne, la deuxième ligne et plus particulièrement les services sociaux hospitaliers ainsi que la première ligne social-santé.</li>
+                    <li>Évaluer l’impact des approches spécifiques mises en place pour l’accompagnement des patients vulnérables, en comparaison avec une prise en charge globale de l’ensemble des patients suivis par le service social hospitalier. Cette évaluation permettra de déterminer la plus-value d’une prise en charge ciblée et d’identifier ses limites.</li>
+                    <li>Étudier l’impact de ces approches spécifiques sur l’hôpital, en s’appuyant sur des indicateurs concrets tels que :
+                        <ul>
+                            <li>La durée moyenne de séjour des patients vulnérables.</li>
+                            <li>Le recours aux services d’urgences et la fréquence des hospitalisations.</li>
+                            <li>L’amélioration du parcours de soins et l’optimisation de la consommation des ressources hospitalières.</li>
+                        </ul>
+                    </li>
+                    <li>Encadrer les débats sur les risques de stigmatisation et la protection des données, en garantissant une prise en charge qui respecte les principes éthiques et le droit à l’oubli.</li>
+                    <li>Faire appel à des experts juridiques, éthiques et philosophiques pour nourrir la réflexion et structurer les recommandations du groupe.</li>
+                </ul>
+            </section>
+
+            <!-- TAB 3: Rapport Projet FLISP (2023-2024) -->
+            <section id="tab-rapport" class="tab-content">
+                 <!-- ... Contenu de l'onglet 3 ... -->
+                <h2>Rapport du Projet FLISP (2023–2024)</h2>
+
+                <h3>Partie 1 : Évaluation du Projet FLISP</h3>
+                <h4>A. Introduction</h4>
+                <p>En Belgique, l'échange de données de santé repose sur une architecture fédérale-régionale complexe. Les travailleurs sociaux hospitaliers (TSH) [...] C'est précisément l'objectif du projet <strong>FLISP – Flux de Liaison Interdisciplinaire Sociale avec le Patient</strong>.</p>
+
+                <h4>B. Finalité stratégique de FLISP</h4>
+                <p>FLISP vise à instituer un flux pérenne d'informations sociales utiles tout au long du parcours de soins.</p>
+                <p><strong>Objectifs principaux :</strong> Soutenir la coordination, Renforcer la place des TSH, Offrir un accès structuré et sécurisé aux <strong>données médico-psycho-sociales</strong>.</p>
+
+                <h4>C. Le POC (Proof Of Concept) FLISP</h4>
+                <h5>1. Une triple alliance pour dépasser les silos</h5>
+                <p>HospiSoc + Fédérations des coordinations de soins + Masana. Déployé sur trois sites pilotes (CHU Liège, Epicura Hainaut, HUB Bruxelles).</p>
+
+                <h5>2. Chronologie :</h5>
+                <p>Lancé en septembre 2023, poursuivi jusqu'en octobre 2024.</p>
+
+                <h5>3. Trois sites pilotes :</h5>
+                 <div class="chart-container">
+                    <h5>Participation des hôpitaux (Enrôlement)</h5>
+                    <div class="bar-chart-container" style="height:120px;">
+                        <div class="bar-item"><div class="bar" style="height: 100%; background-color: var(--chart-color-1);"><span class="bar-label-top">10</span></div>CHU Liège</div>
+                        <div class="bar-item"><div class="bar" style="height: 5%; background-color: var(--chart-color-4);"><span class="bar-label-top">0</span></div>Epicura</div>
+                        <div class="bar-item"><div class="bar" style="height: 5%; background-color: var(--chart-color-4);"><span class="bar-label-top">0</span></div>HUB Bxl</div>
+                    </div>
+                </div>
+                <p>Le CHU de Liège s'est distingué par une mobilisation renforcée.</p>
+
+                <h5>4. Résultats opérationnels</h5>
+                <p>Malgré la mobilisation, l'enrôlement effectif des patients a été fortement limité. Facteurs : fracture numérique, procédure d'enrôlement lourde, plus-value perçue limitée, non-intégration de l'aidant proche.</p>
+
+                <h4>D. Limites et besoins fonctionnels</h4>
+                 <table class="data-table">
+                    <thead>
+                        <tr><th>Axe thématique</th><th>Points de développement attendus</th><th>Difficultés constatées</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Informations générales</td><td>Ajouter champs essentiels</td><td>Infos insuffisantes, bugs</td></tr>
+                        <tr><td>Planification</td><td>Autoriser planification inter-orgas</td><td>Limitation à l'orga propre</td></tr>
+                        <tr><td>Cahier de notes</td><td>Notes modifiables, réactives, notifs</td><td>Pas de modification/interaction</td></tr>
+                        <tr><td>Questionnaires</td><td>Intégrer questionnaires validés, alertes</td><td>Questionnaire absent</td></tr>
+                        <tr><td>Soins intégrés</td><td>Notifier modifs</td><td>Absence de notif</td></tr>
+                        <tr><td>Enrôlement patient</td><td>Rendre intuitif</td><td>Processus lourd</td></tr>
+                        <tr><td>Liens organisationnels</td><td>Visibilité pros, liens multiples, aidants</td><td>Vue incomplète, gestion consentement</td></tr>
+                        <tr><td>Fonctionnalités techniques</td><td>Améliorer ergonomie, PJ, bugs</td><td>Contraintes, bugs, rigidité</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>E. Premiers enseignements du POC 2023-2024</h4>
+                <p>Pertinence d'un canal numérique direct, valeur ajoutée d'une collaboration structurée, faisabilité technique d'un flux médico-psycho-social sécurisé (TSH comme passerelle).</p>
+
+                <h3>Partie 2 : Analyse du Questionnaire – POC FLISP</h3>
+                <h4>A. Accès aux outils numériques et information intra-organisationnelle</h4>
+                <p>23 répondants (hospitaliers et extrahospitaliers).</p>
+                <div class="chart-container">
+                    <h5>Type d'organisation</h5>
+                    <div class="pie-chart" style="background: conic-gradient(var(--chart-color-1) 0% 30.4%, var(--chart-color-2) 30.4% 100%);"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--chart-color-1);"></span>Service social hospitalier (30,4%)</li>
+                        <li><span style="background-color: var(--chart-color-2);"></span>Centre de coordination (69,6%)</li>
+                    </ul>
+                </div>
+                <p><strong>Formation principale :</strong> 78,3% Assistants sociaux. Diversité interdisciplinaire.</p>
+
+                <div class="chart-container">
+                    <h5>Accès au dossier des autres disciplines (intra-organisation)</h5>
+                    <div class="pie-chart" style="background: conic-gradient(var(--chart-color-1) 0% 39.1%, var(--chart-color-3) 39.1% 56.5%, var(--chart-color-4) 56.5% 100%);"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--chart-color-1);"></span>Accès complet (39,1%)</li>
+                        <li><span style="background-color: var(--chart-color-3);"></span>Accès partiel (17,4%)</li>
+                        <li><span style="background-color: var(--chart-color-4);"></span>Aucun accès (43,5%)</li>
+                    </ul>
+                </div>
+                <p>Fracture informationnelle interne.</p>
+
+                <h4>B. Accès aux Réseaux de Santé</h4>
+                 <div class="chart-container">
+                    <h5>Accès aux Réseaux de Santé</h5>
+                    <div class="bar-chart-container">
+                        <div class="bar-item"><div class="bar" style="height: 8.7%; background-color:var(--chart-color-3);"><span class="bar-label-top">8,7%</span></div>RSW</div>
+                        <div class="bar-item"><div class="bar" style="height: 4.3%; background-color:var(--chart-color-3);"><span class="bar-label-top">4,3%</span></div>RSB</div>
+                        <div class="bar-item"><div class="bar" style="height: 87%; background-color:var(--chart-color-1);"><span class="bar-label-top">87%</span></div>Aucun</div>
+                    </div>
+                </div>
+                <p>87% n'ont accès à aucun réseau (AR78). Valide l'ambition de FLISP.</p>
+
+                <h4>C. Usage du mail</h4>
+                <div class="chart-container">
+                    <h5>Usage du mail pour suivi patient</h5>
+                    <div class="pie-chart" style="background: conic-gradient(var(--chart-color-1) 0% 56.5%, var(--chart-color-2) 56.5% 86.9%, var(--chart-color-3) 86.9% 100%);"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--chart-color-1);"></span>Souvent (56,5%)</li>
+                        <li><span style="background-color: var(--chart-color-2);"></span>Parfois (30,4%)</li>
+                        <li><span style="background-color: var(--chart-color-3);"></span>Jamais (13%)</li>
+                    </ul>
+                </div>
+                <p>Problèmes: traçabilité, sécurité, structuration.</p>
+
+                <h4>D. Besoin d'un outil de coordination</h4>
+                 <div class="prominent-percentage-container">
+                    <div class="prominent-percentage">93,3%</div>
+                    <div class="prominent-percentage-label">estiment nécessaire un outil de partage médico-social (même sans avoir utilisé Masana).</div>
+                </div>
+                <p>Consensus fort pour la mission de FLISP.</p>
+
+                <h4>E. Freins rencontrés</h4>
+                <div class="chart-container">
+                    <h5>Aspects utiles de FLISP (8 répondants)</h5>
+                     <div class="pie-chart" style="background: conic-gradient(var(--chart-color-1) 0% 37.5%, var(--chart-color-2) 37.5% 87.5%, var(--chart-color-3) 87.5% 100%);"></div>
+                    <ul class="legend">
+                        <li><span style="background-color: var(--chart-color-1);"></span>Partage infos (37,5%)</li>
+                        <li><span style="background-color: var(--chart-color-2);"></span>Centralisation données (50%)</li>
+                        <li><span style="background-color: var(--chart-color-3);"></span>Coordination soins (12,5%)</li>
+                    </ul>
+                </div>
+
+                <div class="chart-container">
+                    <h5>Raisons non-utilisation Masana (15 répondants)</h5>
+                    <div class="horizontal-bar-chart">
+                        <div class="h-bar-item"><span class="h-bar-label">Patient incapable (num.)</span><div class="h-bar" style="width: 73.3%; background-color: var(--chart-color-1);">73,3%</div></div>
+                        <div class="h-bar-item"><span class="h-bar-label">Pas assez de patients</span><div class="h-bar" style="width: 33.3%; background-color: var(--chart-color-2);">33,3%</div></div>
+                        <div class="h-bar-item"><span class="h-bar-label">Manque de temps</span><div class="h-bar" style="width: 26.7%; background-color: var(--chart-color-3);">26,7%</div></div>
+                        <div class="h-bar-item"><span class="h-bar-label">Autres (formation, etc.)</span><div class="h-bar" style="width: 6.7%; background-color: var(--chart-color-4);">~6,7%</div></div>
+                    </div>
+                </div>
+                <p>Défi majeur : l'intégration de l'aidant proche (non réalisée).</p>
+
+                <h4>F. Retours qualitatifs</h4>
+                <p>Priorités : Triangulation soignants/patients/aidants, Ergonomie/simplicité, Alignement CTP, Intégration données médico-sociales, Clarification finalités, Encadrement global post-retour domicile.</p>
+            </section>
+
+            <!-- TAB 4: Mind Map Identification Travailleurs Sociaux -->
+            <section id="tab-mindmap" class="tab-content">
+                <!-- ... Contenu de l'onglet 4 ... -->
+                <h2>Numéro d'identification pour les travailleurs sociaux de la santé - Professions Social-Santé non Art78 (1ère et 2ème Ligne)</h2>
+                <p>Cette carte mentale illustre les réflexions autour de la reconnaissance et de l'identification des travailleurs sociaux et autres professionnels du secteur social-santé qui ne sont pas couverts par l'Arrêté Royal 78, en vue de leur intégration dans les flux de données partagées.</p>
+                <img src="https://i.postimg.cc/ZRhsGLnh/Identification-des-travailleurs-du-secteur-social-sante-non-art78.jpg" alt="Carte Mentale sur l'identification des travailleurs sociaux de la santé et des professions Social-Santé non Art78" class="mindmap-image">
+                
+                <h3>Points clés de la carte mentale :</h3>
+                <h4>Objectif général :</h4>
+                <ul>
+                    <li>Améliorer le partage des données de santé (physique, mentale, sociale) - CURE & CARE.</li>
+                    <li>Garantir la continuité et la coordination des soins dans une approche intégrée.</li>
+                    <li>Respect du secret professionnel et du consentement éclairé du bénéficiaire.</li>
+                </ul>
+
+                <h4>Trois piliers :</h4>
+                <ol>
+                    <li>
+                        <strong>Identification claire dans les flux de données :</strong>
+                        <ul>
+                            <li>Numéro attribué sur base du diplôme pour les Assistants Sociaux (Profession réglementée, tenus au secret professionnel art. 458 Code pénal).</li>
+                            <li>Ouverture à différents profils du travail social-santé professionnels légalement tenus au secret professionnel.</li>
+                            <li>Lien avec l'organisation employeuse.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Reconnaissance & compétences :</strong>
+                        <ul>
+                            <li>Formation initiale obligatoire (1-2 jours) : Secret professionnel, déontologie, éthique du partage de données, consentement éclairé.</li>
+                            <li>Formation continue structurée : Engagement annuel, reconnu comme levier.</li>
+                            <li>Portfolio de formation continue (min. annuel) : Suivi personnel.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Cartographie dynamique des professionnels & des organisations locales :</strong>
+                        <ul>
+                            <li>Registre à jour : métier, territoire, structure.</li>
+                            <li>Base utile pour les réseaux (ex. BIP).</li>
+                            <li>Prise en compte des indépendants.</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Conditions clés :</h4>
+                <ul>
+                    <li>Attribution via Inami ou instance régionale (AVIQ?).</li>
+                    <li>Volontariat, mais processus rigoureux.</li>
+                    <li>Intégration dans le consentement du patient.</li>
+                </ul>
+
+                <h4>Enjeux liés :</h4>
+                <ul>
+                    <li>Alignement avec le FLISP (Hospisoc).</li>
+                    <li>Contribution à une vision intégrée et transversale des soins.</li>
+                    <li>Soutien à la structuration du secteur social-santé.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <p>Site d'information sur le projet FLISP et l'évolution du partage des données médico-sociales en Belgique.</p>
+        <p>Basé sur les documents : "Évolution nécessaire du partage des données médicales et sociales en Belgique", "Perspectives post-POC FLISP", "Rapport du Projet FLISP (2023-2024)", et la carte mentale sur l'identification des travailleurs sociaux.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    button.classList.add('active');
+                    const targetTabId = button.getAttribute('data-tab');
+                    document.getElementById(targetTabId).classList.add('active');
+                });
+            });
+             // Ensure the first tab is active by default if no other logic sets it
+            if (document.querySelector('.tab-button.active') === null && tabButtons.length > 0) {
+                 tabButtons[0].classList.add('active');
+                 if(document.getElementById(tabButtons[0].getAttribute('data-tab'))){
+                    document.getElementById(tabButtons[0].getAttribute('data-tab')).classList.add('active');
+                 }
+            }
+        });
+    </script>
+</body>
+</html>
